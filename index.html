@@ -151,7 +151,7 @@ function tampilkanTransaksi(transaksi) {
         formatRupiah(data.pengeluaran);
 
       status.textContent = 'Data kas berhasil diperbarui.';
-
+      tampilkanTransaksi(data.transaksi);
     } catch (error) {
       status.textContent = 'Gagal memuat data kas: ' + error.message;
       document.getElementById('saldo').textContent = 'Gagal';
