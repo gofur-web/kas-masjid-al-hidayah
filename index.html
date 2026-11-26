@@ -457,6 +457,7 @@ document.getElementById('formSimpanTransaksi')
       status.textContent = 'Gagal: ' + error.message;
     }
   });
+  let dataRiwayatDKM = [];
 async function muatRiwayatDKM() {
   const token = localStorage.getItem('tokenDKM');
   const daftar = document.getElementById('daftarRiwayatDKM');
@@ -485,6 +486,7 @@ async function muatRiwayatDKM() {
     }
 
     const transaksi = hasil.transaksi || [];
+    dataRiwayatDKM = transaksi;
 const filterJenis = document.getElementById('filterJenisRiwayat').value;
 const filterPublikasi = document.getElementById('filterPublikasiRiwayat').value;
 
