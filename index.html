@@ -578,6 +578,64 @@ document.getElementById('btnMuatRiwayat')
 
 document.getElementById('filterPublikasiRiwayat')
   ?.addEventListener('change', muatRiwayatDKM);
+  Bagus. Sekarang kita aktifkan tombol Edit agar ketika diklik, data transaksi otomatis masuk ke form edit.
+Langkah 9 — Mengisi form Edit
+Di index.html, cari bagian paling bawah <script>, lalu tambahkan kode berikut sebelum </script>:
+function bukaFormEditTransaksi(id) {
+  const transaksi = dataRiwayatDKM.find(
+    t => String(t.id) === String(id)
+  );
+
+  if (!transaksi) {
+    alert('Data transaksi tidak ditemukan.');
+    return;
+  }
+
+  document.getElementById('editIdTransaksi').value = transaksi.id;
+
+  const tanggal = String(transaksi.tanggal || '');
+  document.getElementById('editTanggal').value =
+    /^\d{4}-\d{2}-\d{2}/.test(tanggal)
+      ? tanggal.substring(0, 10)
+      : '';
+
+  document.getElementById('editJenis').value =
+    String(transaksi.jenis || '').toLowerCase();
+
+  document.getElementById('editKategori').value =
+    transaksi.kategori || '';
+
+  document.getElementById('editUraian').value =
+    transaksi.uraian || '';
+
+  document.getElementById('editJumlah').value =
+    transaksi.jumlah || '';
+
+  document.getElementById('editSumber').value =
+    transaksi.sumber || '';
+
+  document.getElementById('editPublikasi').value =
+    String(transaksi.statusPublikasi || '').toLowerCase();
+
+  document.getElementById('formEditTransaksi').style.display = 'block';
+
+  document.getElementById('formEditTransaksi')
+    .scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('daftarRiwayatDKM')
+  .addEventListener('click', function(e) {
+    const tombol = e.target.closest('.btnEditTransaksi');
+
+    if (tombol) {
+      bukaFormEditTransaksi(tombol.dataset.id);
+    }
+  });
+
+
+Simpan dan commit ke GitHub.
+
+Jangan deploy atau mengubah bagian lain dulu. Balas sudah setelah selesai.
 </script>
 </body>
 </html>
