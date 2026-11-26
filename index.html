@@ -87,6 +87,83 @@
   <p id="statusLoginDKM"></p>
 </div>
 
+<div id="formTransaksiDKM" class="section"
+     style="max-width:650px;margin:20px auto;display:none;">
+
+  <h2>📝 Input Transaksi Kas</h2>
+
+  <form id="formSimpanTransaksi">
+
+    <label>Tanggal Transaksi</label>
+    <input type="date" id="tanggalTransaksi" required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Jenis Transaksi</label>
+    <select id="jenisTransaksi" required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+      <option value="">Pilih jenis transaksi</option>
+      <option value="pemasukan">Pemasukan</option>
+      <option value="pengeluaran">Pengeluaran</option>
+    </select>
+
+    <label>Kategori</label>
+    <select id="kategoriTransaksi" required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+      <option value="">Pilih kategori</option>
+      <option value="Infak">Infak</option>
+      <option value="Sedekah">Sedekah</option>
+      <option value="Donasi">Donasi</option>
+      <option value="Zakat">Zakat</option>
+      <option value="Wakaf">Wakaf</option>
+      <option value="Listrik">Listrik</option>
+      <option value="Air">Air</option>
+      <option value="Kebersihan">Kebersihan</option>
+      <option value="Operasional">Operasional</option>
+      <option value="Pembangunan">Pembangunan</option>
+      <option value="Kegiatan Keagamaan">Kegiatan Keagamaan</option>
+      <option value="Lainnya">Lainnya</option>
+    </select>
+
+    <label>Uraian Transaksi</label>
+    <input type="text" id="uraianTransaksi"
+      placeholder="Contoh: Infak Jumat"
+      required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Jumlah (Rp)</label>
+    <input type="number" id="jumlahTransaksi"
+      min="1" step="1" placeholder="Masukkan jumlah"
+      required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Sumber / Keterangan</label>
+    <input type="text" id="sumberTransaksi"
+      placeholder="Contoh: Jamaah masjid"
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Dicatat Oleh</label>
+    <input type="text" id="pencatatTransaksi"
+      placeholder="Nama bendahara"
+      required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Status Publikasi</label>
+    <select id="publikasiTransaksi" required
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+      <option value="publik">Publik - Dapat dilihat warga</option>
+      <option value="internal">Internal - DKM saja</option>
+    </select>
+
+    <button type="submit"
+      style="width:100%;padding:14px;background:#126b45;
+      color:white;border:0;border-radius:8px;cursor:pointer;">
+      Simpan Transaksi
+    </button>
+
+    <p id="statusSimpanTransaksi"></p>
+  </form>
+</div>
+
     <div class="cards">
       <div class="card">
         <h3>Saldo Kas</h3>
