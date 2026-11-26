@@ -636,6 +636,60 @@ document.getElementById('daftarRiwayatDKM')
       bukaFormEditTransaksi(tombol.dataset.id);
     }
   });
+  document.getElementById('daftarRiwayatDKM')
+  .addEventListener('click', async function(e) {
+
+    const tombol = e.target.closest('.btnHapusTransaksi');
+
+    if (!tombol) return;
+
+    const id = tombol.dataset.id;
+
+    const yakin = confirm(
+      'Apakah Anda yakin ingin menghapus transaksi ini?\n\n' +
+      'Data yang dihapus tidak dapat dikembalikan.'
+    );
+
+    if (!yakin) return;
+
+    const token = localStorage.getItem('tokenDKM');
+
+    if (!token) {
+      alert('Silakan login DKM kembali.');
+      return;
+    }
+
+    tombol.disabled = true;
+    tombol.textContent = 'Menghapus...';
+
+    try {
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'hapusTransaksi',
+          token: token,
+          id: id
+        })
+      });
+
+      const hasil = await response.json();
+
+      if (!hasil.success) {
+        throw new Error(hasil.message || 'Gagal menghapus transaksi.');
+      }
+
+      alert('Transaksi berhasil dihapus.');
+
+      await muatRiwayatDKM();
+      await muatDashboard();
+
+    } catch (error) {
+      alert(error.message);
+      tombol.disabled = false;
+      tombol.textContent = 'Hapus';
+    }
+  });
   document.getElementById('btnSimpanEdit')
   .addEventListener('click', async function() {
 
