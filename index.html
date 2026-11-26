@@ -524,6 +524,7 @@ const transaksiFilter = transaksi.filter(t => {
               <th style="padding:10px;text-align:left;">Uraian</th>
               <th style="padding:10px;text-align:right;">Jumlah</th>
               <th style="padding:10px;text-align:left;">Publikasi</th>
+              <th style="padding:10px;text-align:center;">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -538,6 +539,16 @@ const transaksiFilter = transaksi.filter(t => {
                   ${formatRupiah(Number(t.jumlah) || 0)}
                 </td>
                 <td style="padding:10px;">${aman(t.statusPublikasi)}</td>
+                <td style="padding:10px;text-align:center;">
+  <button type="button"
+    class="btnEditTransaksi"
+    data-id="${aman(t.id)}"
+    style="background:#d99b25;color:white;
+    border:0;padding:7px 12px;border-radius:6px;
+    cursor:pointer;">
+    Edit
+  </button>
+</td>
               </tr>
             `).join('')}
           </tbody>
