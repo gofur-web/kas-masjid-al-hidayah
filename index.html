@@ -548,6 +548,14 @@ const transaksiFilter = transaksi.filter(t => {
     cursor:pointer;">
     Edit
   </button>
+  <button type="button"
+  class="btnHapusTransaksi"
+  data-id="${aman(t.id)}"
+  style="background:#dc3545;color:white;
+  border:0;padding:7px 12px;border-radius:6px;
+  cursor:pointer;margin-top:5px;">
+  Hapus
+</button>
 </td>
               </tr>
             `).join('')}
