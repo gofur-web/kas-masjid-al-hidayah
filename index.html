@@ -98,7 +98,33 @@
       maximumFractionDigits: 0
     }).format(angka || 0);
   }
+function tampilkanTransaksi(transaksi) {
+  const container = document.getElementById('transaksiTerbaru');
 
+  if (!transaksi || transaksi.length === 0) {
+    container.innerHTML = '<p>Belum ada transaksi yang dipublikasikan.</p>';
+    return;
+  }
+
+  container.innerHTML = transaksi.map(item => `
+    <div style="
+      padding:14px 0;
+      border-bottom:1px solid #eee;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    ">
+      <div>
+        <strong>${item.jenis} - ${item.kategori}</strong>
+        <div style="font-size:13px;color:#718078;margin-top:5px;">
+          ${item.tanggal || '-'} | ${item.uraian || '-'}
+        </div>
+      </div>
+      <strong>${formatRupiah(item.jumlah)}</strong>
+    </div>
+  `).join('');
+}
   async function muatDashboard() {
     const status = document.getElementById('status');
 
