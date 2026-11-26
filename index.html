@@ -296,10 +296,71 @@ document.getElementById('formLoginDKM')
       localStorage.setItem('tokenDKM', data.token);
 
       status.textContent = 'Login DKM berhasil!';
+      document.getElementById('formTransaksiDKM').style.display = 'block';
+
+document.getElementById('tanggalTransaksi').value =
+  new Date().toLocaleDateString('en-CA');
       document.getElementById('pinDKM').value = '';
 
     } catch (error) {
       status.textContent = 'Login gagal: ' + error.message;
+    }
+  });
+
+document.getElementById('formSimpanTransaksi')
+  .addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const status = document.getElementById('statusSimpanTransaksi');
+    const token = localStorage.getItem('tokenDKM');
+
+    if (!token) {
+      status.textContent = 'Silakan login DKM terlebih dahulu.';
+      return;
+    }
+
+    const dataTransaksi = {
+      tanggal: document.getElementById('tanggalTransaksi').value,
+      jenis: document.getElementById('jenisTransaksi').value,
+      kategori: document.getElementById('kategoriTransaksi').value,
+      uraian: document.getElementById('uraianTransaksi').value,
+      jumlah: document.getElementById('jumlahTransaksi').value,
+      sumber: document.getElementById('sumberTransaksi').value,
+      dicatatOleh: document.getElementById('pencatatTransaksi').value,
+      statusPublikasi: document.getElementById('publikasiTransaksi').value
+    };
+
+    status.textContent = 'Menyimpan transaksi...';
+
+    try {
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'simpanTransaksi',
+          token: token,
+          data: dataTransaksi
+        })
+      });
+
+      const hasil = await response.json();
+
+      if (!hasil.success) {
+        throw new Error(hasil.error || 'Gagal menyimpan transaksi');
+      }
+
+      status.textContent = 'Transaksi berhasil disimpan. Nomor: ' + hasil.nomor;
+
+      document.getElementById('formSimpanTransaksi').reset();
+      document.getElementById('tanggalTransaksi').value =
+        new Date().toLocaleDateString('en-CA');
+
+      muatDashboard();
+
+    } catch (error) {
+      status.textContent = 'Gagal: ' + error.message;
     }
   });
 
