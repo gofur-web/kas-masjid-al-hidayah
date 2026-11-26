@@ -26,7 +26,11 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const body = req.body || {};
 
-      if (!['loginDKM', 'simpanTransaksi'].includes(body.action)) {
+      if (![
+  'loginDKM',
+  'simpanTransaksi',
+  'getRiwayatDKM'
+].includes(body.action)) {
   return res.status(400).json({
     success: false,
     error: 'Action tidak tersedia'
