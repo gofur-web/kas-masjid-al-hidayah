@@ -99,7 +99,23 @@
     Seluruh transaksi pemasukan dan pengeluaran,
     termasuk transaksi internal.
   </p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
 
+  <select id="filterJenisRiwayat"
+    style="padding:10px;border:1px solid #ccc;border-radius:8px;">
+    <option value="">Semua Jenis</option>
+    <option value="pemasukan">Pemasukan</option>
+    <option value="pengeluaran">Pengeluaran</option>
+  </select>
+
+  <select id="filterPublikasiRiwayat"
+    style="padding:10px;border:1px solid #ccc;border-radius:8px;">
+    <option value="">Semua Status</option>
+    <option value="publik">Publik</option>
+    <option value="internal">Internal</option>
+  </select>
+
+</div>
   <button type="button" id="btnMuatRiwayat"
     style="padding:10px 16px;background:#126b45;
     color:white;border:0;border-radius:8px;cursor:pointer;">
@@ -414,8 +430,19 @@ async function muatRiwayatDKM() {
     }
 
     const transaksi = hasil.transaksi || [];
+const filterJenis = document.getElementById('filterJenisRiwayat').value;
+const filterPublikasi = document.getElementById('filterPublikasiRiwayat').value;
 
-    if (transaksi.length === 0) {
+const transaksiFilter = transaksi.filter(t => {
+  const cocokJenis = !filterJenis ||
+    String(t.jenis).toLowerCase() === filterJenis;
+
+  const cocokPublikasi = !filterPublikasi ||
+    String(t.statusPublikasi).toLowerCase() === filterPublikasi;
+
+  return cocokJenis && cocokPublikasi;
+});
+    if (transaksiFilter.length === 0) {
       daftar.innerHTML = '<p>Belum ada transaksi.</p>';
       return;
     }
@@ -443,7 +470,7 @@ async function muatRiwayatDKM() {
             </tr>
           </thead>
           <tbody>
-            ${transaksi.map(t => `
+            ${transaksiFilter.map(t => `
               <tr style="border-bottom:1px solid #ddd;">
                 <td style="padding:10px;">${aman(t.tanggal)}</td>
                 <td style="padding:10px;">${aman(t.noTransaksi)}</td>
