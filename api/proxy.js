@@ -26,12 +26,12 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const body = req.body || {};
 
-      if (body.action !== 'loginDKM') {
-        return res.status(400).json({
-          success: false,
-          error: 'Action tidak tersedia'
-        });
-      }
+      if (!['loginDKM', 'simpanTransaksi'].includes(body.action)) {
+  return res.status(400).json({
+    success: false,
+    error: 'Action tidak tersedia'
+  });
+}
 
       const response = await fetch(scriptUrl, {
         method: 'POST',
