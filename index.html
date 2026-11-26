@@ -636,6 +636,74 @@ document.getElementById('daftarRiwayatDKM')
 Simpan dan commit ke GitHub.
 
 Jangan deploy atau mengubah bagian lain dulu. Balas sudah setelah selesai.
+    document.getElementById('btnSimpanEdit')
+  .addEventListener('click', async function() {
+
+    const token = localStorage.getItem('tokenDKM');
+    const status = document.getElementById('statusEditTransaksi');
+
+    const id = document.getElementById('editIdTransaksi').value;
+
+    const data = {
+      tanggal: document.getElementById('editTanggal').value,
+      jenis: document.getElementById('editJenis').value,
+      kategori: document.getElementById('editKategori').value,
+      uraian: document.getElementById('editUraian').value,
+      jumlah: document.getElementById('editJumlah').value,
+      sumber: document.getElementById('editSumber').value,
+      publikasi: document.getElementById('editPublikasi').value
+    };
+
+    if (!token) {
+      status.textContent = 'Silakan login DKM kembali.';
+      return;
+    }
+
+    if (!id || !data.tanggal || !data.kategori ||
+        !data.uraian || !data.jumlah || !data.sumber) {
+      status.textContent = 'Mohon lengkapi semua kolom.';
+      return;
+    }
+
+    this.disabled = true;
+    status.textContent = 'Menyimpan perubahan...';
+
+    try {
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'editTransaksi',
+          token: token,
+          id: id,
+          data: data
+        })
+      });
+
+      const hasil = await response.json();
+
+      if (!hasil.success) {
+        throw new Error(hasil.message || 'Gagal memperbarui transaksi.');
+      }
+
+      alert('Transaksi berhasil diperbarui.');
+
+      document.getElementById('formEditTransaksi').style.display = 'none';
+
+      await muatRiwayatDKM();
+      await muatDashboard();
+
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      this.disabled = false;
+    }
+  });
+
+document.getElementById('btnBatalEdit')
+  .addEventListener('click', function() {
+    document.getElementById('formEditTransaksi').style.display = 'none';
+  });
 </script>
 </body>
 </html>
