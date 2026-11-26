@@ -30,7 +30,8 @@ export default async function handler(req, res) {
   'loginDKM',
   'simpanTransaksi',
   'getRiwayatDKM',
-  'editTransaksi'
+  'editTransaksi',
+  'hapusTransaksi'
 ].includes(body.action)) {
   return res.status(400).json({
     success: false,
