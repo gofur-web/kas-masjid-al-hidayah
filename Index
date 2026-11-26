@@ -89,5 +89,51 @@
   <footer>
     Sistem Informasi Kas Masjid Al-Hidayah
   </footer>
+<script>
+  function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }).format(angka || 0);
+  }
+
+  async function muatDashboard() {
+    const status = document.getElementById('status');
+
+    try {
+      const response = await fetch('/api/proxy?action=dashboard');
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Gagal mengambil data');
+      }
+
+      document.getElementById('saldo').textContent =
+        formatRupiah(data.saldo);
+
+      document.getElementById('pemasukan').textContent =
+        formatRupiah(data.pemasukan);
+
+      document.getElementById('pengeluaran').textContent =
+        formatRupiah(data.pengeluaran);
+
+      status.textContent = 'Data kas berhasil diperbarui.';
+
+    } catch (error) {
+      status.textContent = 'Gagal memuat data kas: ' + error.message;
+      document.getElementById('saldo').textContent = 'Gagal';
+      document.getElementById('pemasukan').textContent = 'Gagal';
+      document.getElementById('pengeluaran').textContent = 'Gagal';
+    }
+  }
+
+  muatDashboard();
+</script>
 </body>
 </html>
