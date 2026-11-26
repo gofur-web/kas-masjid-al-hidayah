@@ -385,7 +385,98 @@ document.getElementById('formSimpanTransaksi')
       status.textContent = 'Gagal: ' + error.message;
     }
   });
+async function muatRiwayatDKM() {
+  const token = localStorage.getItem('tokenDKM');
+  const daftar = document.getElementById('daftarRiwayatDKM');
 
+  if (!token) {
+    daftar.innerHTML = '<p>Silakan login DKM terlebih dahulu.</p>';
+    return;
+  }
+
+  daftar.innerHTML = '<p>Memuat riwayat transaksi...</p>';
+
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getRiwayatDKM',
+        token: token
+      })
+    });
+
+    const hasil = await response.json();
+
+    if (!hasil.success) {
+      throw new Error(hasil.message || 'Gagal memuat riwayat.');
+    }
+
+    const transaksi = hasil.transaksi || [];
+
+    if (transaksi.length === 0) {
+      daftar.innerHTML = '<p>Belum ada transaksi.</p>';
+      return;
+    }
+
+    const aman = nilai => String(nilai ?? '').replace(/[&<>"']/g, karakter => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[karakter]);
+
+    daftar.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#e8f3ed;">
+              <th style="padding:10px;text-align:left;">Tanggal</th>
+              <th style="padding:10px;text-align:left;">No. Transaksi</th>
+              <th style="padding:10px;text-align:left;">Jenis</th>
+              <th style="padding:10px;text-align:left;">Kategori</th>
+              <th style="padding:10px;text-align:left;">Uraian</th>
+              <th style="padding:10px;text-align:right;">Jumlah</th>
+              <th style="padding:10px;text-align:left;">Publikasi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${transaksi.map(t => `
+              <tr style="border-bottom:1px solid #ddd;">
+                <td style="padding:10px;">${aman(t.tanggal)}</td>
+                <td style="padding:10px;">${aman(t.noTransaksi)}</td>
+                <td style="padding:10px;">${aman(t.jenis)}</td>
+                <td style="padding:10px;">${aman(t.kategori)}</td>
+                <td style="padding:10px;">${aman(t.uraian)}</td>
+                <td style="padding:10px;text-align:right;">
+                  ${formatRupiah(Number(t.jumlah) || 0)}
+                </td>
+                <td style="padding:10px;">${aman(t.statusPublikasi)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    daftar.innerHTML = '<p style="color:red;">' +
+      amanPesanRiwayat(error.message) + '</p>';
+  }
+}
+
+function amanPesanRiwayat(pesan) {
+  return String(pesan ?? '').replace(/[&<>"']/g, karakter => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[karakter]);
+}
+
+document.getElementById('btnMuatRiwayat')
+  ?.addEventListener('click', muatRiwayatDKM);
 </script>
 </body>
 </html>
