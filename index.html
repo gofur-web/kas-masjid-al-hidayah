@@ -188,6 +188,44 @@ function tampilkanTransaksi(transaksi) {
   }
 
   muatDashboard();
+  
+document.getElementById('formLoginDKM')
+  .addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const pin = document.getElementById('pinDKM').value;
+    const status = document.getElementById('statusLoginDKM');
+
+    status.textContent = 'Memeriksa PIN...';
+
+    try {
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'loginDKM',
+          pin: pin
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'PIN salah');
+      }
+
+      localStorage.setItem('tokenDKM', data.token);
+
+      status.textContent = 'Login DKM berhasil!';
+      document.getElementById('pinDKM').value = '';
+
+    } catch (error) {
+      status.textContent = 'Login gagal: ' + error.message;
+    }
+  });
+
 </script>
 </body>
 </html>
