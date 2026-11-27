@@ -447,6 +447,10 @@ function tampilkanTransaksi(transaksi) {
 let grafikKas = null;
 
 async function muatGrafikKeuangan() {
+  
+let grafikKas = null;
+
+async function muatGrafikKeuangan() {
   const tahun = document.getElementById('tahunGrafik').value;
   const canvas = document.getElementById('grafikKeuangan');
 
@@ -466,86 +470,89 @@ async function muatGrafikKeuangan() {
     if (!data.success) {
       throw new Error(data.error || 'Gagal mengambil data grafik.');
     }
-// HITUNG SALDO KUMULATIF
-const saldoKumulatif = [];
-let saldoBerjalan = 0;
 
-for (let i = 0; i < 12; i++) {
-  saldoBerjalan +=
-    (Number(data.pemasukan[i]) || 0) -
-    (Number(data.pengeluaran[i]) || 0);
+    const pemasukan = data.pemasukan || [];
+    const pengeluaran = data.pengeluaran || [];
 
-  saldoKumulatif.push(saldoBerjalan);
-}
+    // HITUNG SALDO KUMULATIF
+    const saldoKumulatif = [];
+    let saldoBerjalan = 0;
+
+    for (let i = 0; i < 12; i++) {
+      saldoBerjalan +=
+        (Number(pemasukan[i]) || 0) -
+        (Number(pengeluaran[i]) || 0);
+
+      saldoKumulatif.push(saldoBerjalan);
+    }
+
     if (grafikKas) {
       grafikKas.destroy();
     }
 
     grafikKas = new Chart(canvas, {
       type: 'bar',
+
       data: {
         labels: [
           'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
           'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
         ],
+
         datasets: [
           {
             label: 'Pemasukan',
-            data: data.pemasukan,
+            data: pemasukan,
             backgroundColor: '#16834b'
           },
           {
             label: 'Pengeluaran',
-            data: data.pengeluaran,
+            data: pengeluaran,
             backgroundColor: '#dc3545'
           },
-            {
-  label: 'Saldo Kumulatif',
-  data: saldoKumulatif,
-  type: 'line',
-  borderColor: '#2563eb',
-  backgroundColor: '#2563eb',
-  borderWidth: 3,
-  tension: 0.3,
-  fill: false,
-  pointRadius: 4,
-  pointBackgroundColor: '#2563eb',
-  yAxisID: 'y'
-}
+          {
+            label: 'Saldo Kumulatif',
+            data: saldoKumulatif,
+            type: 'line',
+            borderColor: '#2563eb',
+            backgroundColor: '#2563eb',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: false,
+            pointRadius: 5,
+            pointBackgroundColor: '#2563eb',
+            yAxisID: 'y'
+          }
         ]
       },
+
       options: {
-  responsive: true,
-  interaction: {
-    mode: 'index',
-    intersect: false
-  },
-  plugins: {
-    tooltip: {
-      callbacks: {
-        label: function(context) {
-          return context.dataset.label + ': Rp ' +
-            Number(context.raw).toLocaleString('id-ID');
-        }
-      }
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        callback: function(value) {
-          return 'Rp ' + Number(value).toLocaleString('id-ID');
-        }
-      }
-    }
-  }
-}
+        responsive: true,
+        maintainAspectRatio: true,
+
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': Rp ' +
+                  Number(context.raw).toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+
+        scales: {
           y: {
             beginAtZero: true,
             ticks: {
               callback: function(value) {
-                return 'Rp ' + Number(value).toLocaleString('id-ID');
+                return 'Rp ' +
+                  Number(value).toLocaleString('id-ID');
               }
             }
           }
