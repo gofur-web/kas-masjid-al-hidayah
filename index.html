@@ -636,7 +636,7 @@ const pilihanTahun = document.getElementById('tahunLaporan');
 if (pilihanTahun) {
   const tahunSekarang = new Date().getFullYear();
 
-  for (let tahun = tahunSekarang; tahun >= tahunSekarang - 10; tahun--) {
+  for (let tahun = tahunSekarang; tahun >= tahunSekarang - 5; tahun--) {
     const opsi = document.createElement('option');
     opsi.value = tahun;
     opsi.textContent = tahun;
