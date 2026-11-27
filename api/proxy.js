@@ -44,7 +44,11 @@ export default async function handler(req, res) {
         'simpanTransaksi',
         'getRiwayatDKM',
         'editTransaksi',
-        'hapusTransaksi'
+        'hapusTransaksi',
+         'getInformasiDKM',
+        'tambahInformasiDKM',
+        'editInformasiDKM',
+        'hapusInformasiDKM'
       ].includes(body.action)) {
         return res.status(400).json({
           success: false,
