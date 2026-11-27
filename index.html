@@ -515,8 +515,32 @@ for (let i = 0; i < 12; i++) {
         ]
       },
       options: {
-        responsive: true,
-        scales: {
+  responsive: true,
+  interaction: {
+    mode: 'index',
+    intersect: false
+  },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.dataset.label + ': Rp ' +
+            Number(context.raw).toLocaleString('id-ID');
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: function(value) {
+          return 'Rp ' + Number(value).toLocaleString('id-ID');
+        }
+      }
+    }
+  }
+}
           y: {
             beginAtZero: true,
             ticks: {
