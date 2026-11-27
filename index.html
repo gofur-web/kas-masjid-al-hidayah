@@ -453,38 +453,19 @@ async function muatGrafikKeuangan() {
   if (!tahun || !canvas) return;
 
   try {
-    const response = await fetch('/api/proxy?action=dashboard');
+    const response = await fetch(
+      '/api/proxy?action=grafik&tahun=' + encodeURIComponent(tahun)
+    );
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
     const data = await response.json();
 
     if (!data.success) {
-      throw new Error('Gagal mengambil data grafik.');
+      throw new Error(data.error || 'Gagal mengambil data grafik.');
     }
-
-    const transaksi = data.transaksi || [];
-    const namaBulan = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
-
-    const pemasukan = Array(12).fill(0);
-    const pengeluaran = Array(12).fill(0);
-
-    transaksi.forEach(t => {
-      const tanggal = String(t.tanggal || '');
-      if (tanggal.substring(0, 4) !== String(tahun)) return;
-
-      const bulan = Number(tanggal.substring(5, 7)) - 1;
-      if (bulan < 0 || bulan > 11) return;
-
-      const jumlah = Number(t.jumlah) || 0;
-
-      if (String(t.jenis).toLowerCase() === 'pemasukan' ||
-          String(t.jenis).toLowerCase() === 'saldo awal') {
-        pemasukan[bulan] += jumlah;
-      } else if (String(t.jenis).toLowerCase() === 'pengeluaran') {
-        pengeluaran[bulan] += jumlah;
-      }
-    });
 
     if (grafikKas) {
       grafikKas.destroy();
@@ -493,23 +474,25 @@ async function muatGrafikKeuangan() {
     grafikKas = new Chart(canvas, {
       type: 'bar',
       data: {
-        labels: namaBulan,
+        labels: [
+          'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+          'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+        ],
         datasets: [
           {
             label: 'Pemasukan',
-            data: pemasukan,
+            data: data.pemasukan,
             backgroundColor: '#16834b'
           },
           {
             label: 'Pengeluaran',
-            data: pengeluaran,
+            data: data.pengeluaran,
             backgroundColor: '#dc3545'
           }
         ]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
         scales: {
           y: {
             beginAtZero: true,
