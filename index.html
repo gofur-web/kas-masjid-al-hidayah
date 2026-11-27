@@ -595,6 +595,16 @@ const transaksiFilter = transaksi.filter(t => {
 }
   document.getElementById('btnMuatRiwayat')
   .addEventListener('click', muatRiwayatDKM);
+  // Mengisi pilihan bulan dengan bulan saat ini
+const inputBulanLaporan = document.getElementById('bulanLaporan');
+
+if (inputBulanLaporan) {
+  const sekarang = new Date();
+  const tahun = sekarang.getFullYear();
+  const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
+
+  inputBulanLaporan.value = `${tahun}-${bulan}`;
+}
 // ==================================
 // LAPORAN KEUANGAN BULANAN
 // ==================================
