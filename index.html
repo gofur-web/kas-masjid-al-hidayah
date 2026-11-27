@@ -845,6 +845,67 @@ const transaksiFilter = transaksi.filter(t => {
       amanPesanRiwayat(error.message) + '</p>';
   }
 }
+    async function muatInformasiDKM() {
+  const daftar = document.getElementById('daftarInformasiDKM');
+  const token = localStorage.getItem('tokenDKM');
+
+  if (!token) {
+    daftar.innerHTML = '<p>Silakan login DKM terlebih dahulu.</p>';
+    return;
+  }
+
+  daftar.innerHTML = '<p>Memuat informasi...</p>';
+
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'getInformasiDKM',
+        token: token
+      })
+    });
+
+    const hasil = await response.json();
+
+    if (!hasil.success) {
+      throw new Error(hasil.message || 'Gagal memuat informasi.');
+    }
+
+    if (!hasil.data || hasil.data.length === 0) {
+      daftar.innerHTML = '<p>Belum ada informasi atau catatan DKM.</p>';
+      return;
+    }
+
+    daftar.innerHTML = hasil.data.map(item => `
+      <div style="background:#f5f8f6;padding:16px;
+        border-radius:10px;margin-bottom:12px;">
+
+        <h3>${escapeHTML(item.judul)}</h3>
+
+        <p style="color:#718078;">
+          ${escapeHTML(item.tanggal)} |
+          ${escapeHTML(item.jenis)} |
+          ${escapeHTML(item.status)}
+        </p>
+
+        <p style="white-space:pre-wrap;">
+          ${escapeHTML(item.isi)}
+        </p>
+
+        <small>Penulis: ${escapeHTML(item.penulis)}</small>
+
+      </div>
+    `).join('');
+
+  } catch (error) {
+    daftar.innerHTML =
+      '<p style="color:red;">Gagal memuat informasi: ' +
+      escapeHTML(error.message) + '</p>';
+  }
+}
   document.getElementById('btnMuatRiwayat')
   .addEventListener('click', muatRiwayatDKM);
   document.getElementById('btnMuatLaporan')
