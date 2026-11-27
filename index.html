@@ -1009,71 +1009,56 @@ const transaksiFilter = transaksi.filter(t => {
       escapeHTML(error.message) + '</p>';
   }
 }
-    document.getElementById('formInformasiDKM')
-  .addEventListener('submit', async function(e) {
-    e.preventDefault();
+ document.getElementById('formInformasiDKM').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const status = document.getElementById('statusInformasiDKM');
+  if (status) status.textContent = 'Menyimpan informasi...';
 
-    const status = document.getElementById('statusFormInformasiDKM');
-    const token = localStorage.getItem('tokenDKM');
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: document.getElementById('editIdInformasiDKM').value
+          ? 'editInformasiDKM'
+          : 'tambahInformasiDKM',
+        id: document.getElementById('editIdInformasiDKM').value,
+        token: token,
+        data: data
+      })
+    }); // <-- SUDAH DITAMBAHKAN PENUTUPNYA DI SINI
 
-    if (!token) {
-      status.textContent = 'Silakan login DKM terlebih dahulu.';
-      return;
+    const hasil = await response.json();
+
+    if (!hasil.success) {
+      throw new Error(hasil.message || 'Gagal menyimpan informasi.');
     }
 
-    const data = {
-      tanggal: document.getElementById('tanggalInformasiDKM').value,
-      judul: document.getElementById('judulInformasiDKM').value,
-      isi: document.getElementById('isiInformasiDKM').value,
-      jenis: document.getElementById('jenisInformasiDKM').value,
-      status: document.getElementById('statusInformasiDKM').value,
-      penulis: document.getElementById('penulisInformasiDKM').value
-    };
+    if (status) status.textContent = 'Informasi berhasil disimpan.';
 
-    status.textContent = 'Menyimpan informasi...';
+    document.getElementById('formInformasiDKM').reset();
+    document.getElementById('editIdInformasiDKM').value = '';
+    document.getElementById('tanggalInformasiDKM').value =
+      new Date().toLocaleDateString('en-CA');
 
-    try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-       body: JSON.stringify({
-  action: document.getElementById('editIdInformasiDKM').value
-    ? 'editInformasiDKM'
-    : 'tambahInformasiDKM',
-  id: document.getElementById('editIdInformasiDKM').value,
-  token: token,
-  data: data
-})
+    await muatInformasiDKM();
+
+  } catch (error) {
+    if (status) status.textContent = 'Gagal: ' + error.message;
+  }
 });
 
-      const hasil = await response.json();
-
-      if (!hasil.success) {
-        throw new Error(hasil.message || 'Gagal menyimpan informasi.');
-      }
-
-      status.textContent = 'Informasi berhasil disimpan.';
-
-      document.getElementById('formInformasiDKM').reset();
-      document.getElementById('editIdInformasiDKM').value = '';
-      document.getElementById('tanggalInformasiDKM').value =
-        new Date().toLocaleDateString('en-CA');
-
-      await muatInformasiDKM();
-
-    } catch (error) {
-      status.textContent = 'Gagal: ' + error.message;
-    }
-  });
-  document.getElementById('btnMuatRiwayat')
+document.getElementById('btnMuatRiwayat')
   .addEventListener('click', muatRiwayatDKM);
-  document.getElementById('btnMuatLaporan')
+document.getElementById('btnMuatLaporan')
   .addEventListener('click', muatLaporanBulanan);
-  document.getElementById('btnMuatLaporanTahunan')
+document.getElementById('btnMuatLaporanTahunan')
   .addEventListener('click', muatLaporanTahunan);
-  // Mengisi pilihan bulan dengan bulan saat ini
+
+// Mengisi pilihan bulan dengan bulan saat ini
 const inputBulanLaporan = document.getElementById('bulanLaporan');
 // PILIHAN TAHUN LAPORAN
 const pilihanTahun = document.getElementById('tahunLaporan');
