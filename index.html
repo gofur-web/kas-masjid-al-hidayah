@@ -1038,7 +1038,7 @@ const transaksiFilter = transaksi.filter(t => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
+       body: JSON.stringify({
   action: document.getElementById('editIdInformasiDKM').value
     ? 'editInformasiDKM'
     : 'tambahInformasiDKM',
@@ -1046,6 +1046,7 @@ const transaksiFilter = transaksi.filter(t => {
   token: token,
   data: data
 })
+});
 
       const hasil = await response.json();
 
