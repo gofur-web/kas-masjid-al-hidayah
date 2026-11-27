@@ -966,6 +966,80 @@ function cetakLaporanBulanan() {
   jendela.document.close();
 }
   
+function cetakLaporanTahunan() {
+  const isi = document.getElementById('isiCetakLaporanTahunan');
+
+  if (!isi) {
+    alert('Tampilkan laporan tahunan terlebih dahulu.');
+    return;
+  }
+
+  const jendela = window.open('', '_blank');
+
+  if (!jendela) {
+    alert('Izinkan pop-up pada browser untuk mencetak laporan.');
+    return;
+  }
+
+  jendela.onload = function() {
+    jendela.focus();
+    jendela.print();
+  };
+
+  jendela.document.open();
+  jendela.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Laporan Keuangan Tahunan Masjid Al-Hidayah</title>
+      <style>
+        @page {
+          size: A4 landscape;
+          margin: 15mm;
+        }
+
+        body {
+          font-family: Arial, sans-serif;
+          color: #222;
+          font-size: 11px;
+        }
+
+        h2, h3, p {
+          margin: 6px 0;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 10px;
+          margin-top: 12px;
+        }
+
+        th, td {
+          border: 1px solid #777;
+          padding: 7px;
+        }
+
+        th {
+          background: #e8f5ed;
+        }
+
+        button {
+          display: none !important;
+        }
+      </style>
+    </head>
+    <body>
+      ${isi.innerHTML}
+    </body>
+    </html>
+  `);
+
+  jendela.document.close();
+}
+
+  
 async function muatLaporanTahunan() {
   const tahun = document.getElementById('tahunLaporan').value;
   const hasil = document.getElementById('hasilLaporanTahunan');
