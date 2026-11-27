@@ -466,7 +466,17 @@ async function muatGrafikKeuangan() {
     if (!data.success) {
       throw new Error(data.error || 'Gagal mengambil data grafik.');
     }
+// HITUNG SALDO KUMULATIF
+const saldoKumulatif = [];
+let saldoBerjalan = 0;
 
+for (let i = 0; i < 12; i++) {
+  saldoBerjalan +=
+    (Number(data.pemasukan[i]) || 0) -
+    (Number(data.pengeluaran[i]) || 0);
+
+  saldoKumulatif.push(saldoBerjalan);
+}
     if (grafikKas) {
       grafikKas.destroy();
     }
