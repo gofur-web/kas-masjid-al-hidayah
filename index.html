@@ -760,6 +760,14 @@ if (pilihanTahunGrafik) {
     pilihanTahunGrafik.appendChild(opsi);
   }
 }
+    // MUAT GRAFIK PERTAMA KALI
+if (pilihanTahunGrafik) {
+  muatGrafikKeuangan();
+
+  pilihanTahunGrafik.addEventListener('change', function() {
+    muatGrafikKeuangan();
+  });
+}
 if (inputBulanLaporan) {
   const sekarang = new Date();
   const tahun = sekarang.getFullYear();
