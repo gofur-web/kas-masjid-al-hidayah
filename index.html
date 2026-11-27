@@ -182,7 +182,32 @@
   </div>
 
 </div>
+<!-- LAPORAN KEUANGAN BULANAN -->
+<div class="section" style="margin-top:25px;">
 
+  <h2>📊 Laporan Keuangan Bulanan</h2>
+
+  <p style="color:#718078;">
+    Rekap pemasukan, pengeluaran, dan saldo kas
+    berdasarkan bulan transaksi.
+  </p>
+
+  <label>Pilih Bulan</label>
+  <input type="month" id="bulanLaporan"
+    style="width:100%;padding:12px;margin:8px 0 15px;">
+
+  <button type="button" id="btnMuatLaporan"
+    style="width:100%;padding:13px;background:#126b45;
+    color:white;border:0;border-radius:8px;cursor:pointer;">
+    Tampilkan Laporan
+  </button>
+
+  <div id="hasilLaporanBulanan" style="margin-top:20px;">
+    <p>Silakan pilih bulan untuk melihat laporan.</p>
+  </div>
+
+</div>
+<!-- AKHIR LAPORAN KEUANGAN BULANAN -->
   <h2>📝 Input Transaksi Kas</h2>
 
   <form id="formSimpanTransaksi">
@@ -568,7 +593,63 @@ const transaksiFilter = transaksi.filter(t => {
       amanPesanRiwayat(error.message) + '</p>';
   }
 }
+// ==================================
+// LAPORAN KEUANGAN BULANAN
+// ==================================
 
+function muatLaporanBulanan() {
+  const bulan = document.getElementById('bulanLaporan').value;
+  const hasil = document.getElementById('hasilLaporanBulanan');
+
+  if (!bulan) {
+    hasil.innerHTML = '<p style="color:red;">Silakan pilih bulan terlebih dahulu.</p>';
+    return;
+  }
+
+  const transaksi = dataRiwayatDKM || [];
+
+  const dataBulan = transaksi.filter(t => {
+    return String(t.tanggal || '').substring(0, 7) === bulan;
+  });
+
+  const pemasukan = dataBulan
+    .filter(t => String(t.jenis).toLowerCase() === 'pemasukan')
+    .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+  const pengeluaran = dataBulan
+    .filter(t => String(t.jenis).toLowerCase() === 'pengeluaran')
+    .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+  const saldo = pemasukan - pengeluaran;
+
+  hasil.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+
+      <div style="background:#e8f5ed;padding:16px;border-radius:10px;">
+        <p>Total Pemasukan</p>
+        <h3 style="color:#16834b;">${formatRupiah(pemasukan)}</h3>
+      </div>
+
+      <div style="background:#fdecec;padding:16px;border-radius:10px;">
+        <p>Total Pengeluaran</p>
+        <h3 style="color:#dc3545;">${formatRupiah(pengeluaran)}</h3>
+      </div>
+
+      <div style="background:#edf2fa;padding:16px;border-radius:10px;">
+        <p>Selisih Bulan Ini</p>
+        <h3>${formatRupiah(saldo)}</h3>
+      </div>
+
+    </div>
+
+    <p style="margin-top:15px;">
+      Jumlah transaksi: <strong>${dataBulan.length}</strong>
+    </p>
+  `;
+}
+
+document.getElementById('btnMuatLaporan')
+  .addEventListener('click', muatLaporanBulanan);
 function amanPesanRiwayat(pesan) {
   return String(pesan ?? '').replace(/[&<>"']/g, karakter => ({
     '&': '&amp;',
