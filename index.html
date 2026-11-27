@@ -1018,7 +1018,7 @@ const transaksiFilter = transaksi.filter(t => {
       status.textContent = 'Informasi berhasil disimpan.';
 
       document.getElementById('formInformasiDKM').reset();
-
+      document.getElementById('editIdInformasiDKM').value = '';
       document.getElementById('tanggalInformasiDKM').value =
         new Date().toLocaleDateString('en-CA');
 
