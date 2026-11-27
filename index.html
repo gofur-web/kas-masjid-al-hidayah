@@ -628,7 +628,19 @@ const transaksiFilter = transaksi.filter(t => {
   .addEventListener('click', muatLaporanBulanan);
   // Mengisi pilihan bulan dengan bulan saat ini
 const inputBulanLaporan = document.getElementById('bulanLaporan');
+// PILIHAN TAHUN LAPORAN
+const pilihanTahun = document.getElementById('tahunLaporan');
 
+if (pilihanTahun) {
+  const tahunSekarang = new Date().getFullYear();
+
+  for (let tahun = tahunSekarang; tahun >= tahunSekarang - 10; tahun--) {
+    const opsi = document.createElement('option');
+    opsi.value = tahun;
+    opsi.textContent = tahun;
+    pilihanTahun.appendChild(opsi);
+  }
+}
 if (inputBulanLaporan) {
   const sekarang = new Date();
   const tahun = sekarang.getFullYear();
