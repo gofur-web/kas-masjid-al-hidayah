@@ -4,15 +4,15 @@ export default async function handler(req, res) {
     'https://script.google.com/macros/s/AKfycbyJ89Y5A-sWXMhz0tCYB3oCFrxMrDiGYMagthBgvseYc_Ro1ShsNBsVc064nZpsd9xq/exec';
 
   try {
-    if (req.method === 'GET') {
-      const action = req.query.action || 'dashboard';
+   if (req.method === 'GET') {
+  const action = req.query.action || 'dashboard';
 
-      if (action !== 'dashboard') {
-        return res.status(400).json({
-          success: false,
-          error: 'Action tidak tersedia'
-        });
-      }
+  if (!['dashboard', 'grafik'].includes(action)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Action tidak tersedia'
+    });
+  }
 
       const url = new URL(scriptUrl);
       url.searchParams.set('action', action);
