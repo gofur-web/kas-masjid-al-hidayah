@@ -630,7 +630,53 @@ async function muatGrafikKeuangan() {
 }
 
   muatDashboard();
-  
+function editInformasiDKM(id) {
+  const token = localStorage.getItem('tokenDKM');
+
+  if (!token) {
+    alert('Silakan login DKM terlebih dahulu.');
+    return;
+  }
+
+  fetch('/api/proxy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'getInformasiDKM',
+      token: token
+    })
+  })
+  .then(response => response.json())
+  .then(hasil => {
+    if (!hasil.success) {
+      throw new Error(hasil.message);
+    }
+
+    const item = hasil.data.find(data => String(data.id) === String(id));
+
+    if (!item) {
+      alert('Informasi tidak ditemukan.');
+      return;
+    }
+
+    document.getElementById('editIdInformasiDKM').value = item.id;
+    document.getElementById('tanggalInformasiDKM').value = item.tanggal;
+    document.getElementById('judulInformasiDKM').value = item.judul;
+    document.getElementById('isiInformasiDKM').value = item.isi;
+    document.getElementById('jenisInformasiDKM').value = item.jenis;
+    document.getElementById('statusInformasiDKM').value = item.status;
+    document.getElementById('penulisInformasiDKM').value = item.penulis;
+
+    document.getElementById('formInformasiDKM').scrollIntoView({
+      behavior: 'smooth'
+    });
+  })
+  .catch(error => {
+    alert('Gagal mengambil informasi: ' + error.message);
+  });
+}  
 document.getElementById('formLoginDKM')
   .addEventListener('submit', async function(e) {
     e.preventDefault();
