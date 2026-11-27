@@ -597,7 +597,7 @@ const transaksiFilter = transaksi.filter(t => {
 // LAPORAN KEUANGAN BULANAN
 // ==================================
 
-function muatLaporanBulanan() {
+async function muatLaporanBulanan() {
   const bulan = document.getElementById('bulanLaporan').value;
   const hasil = document.getElementById('hasilLaporanBulanan');
 
@@ -606,236 +606,82 @@ function muatLaporanBulanan() {
     return;
   }
 
-  const transaksi = dataRiwayatDKM || [];
+  const token = localStorage.getItem('tokenDKM');
 
-  const dataBulan = transaksi.filter(t => {
-    return String(t.tanggal || '').substring(0, 7) === bulan;
-  });
-
-  const pemasukan = dataBulan
-    .filter(t => String(t.jenis).toLowerCase() === 'pemasukan')
-    .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
-
-  const pengeluaran = dataBulan
-    .filter(t => String(t.jenis).toLowerCase() === 'pengeluaran')
-    .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
-
-  const saldo = pemasukan - pengeluaran;
-
-  hasil.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
-
-      <div style="background:#e8f5ed;padding:16px;border-radius:10px;">
-        <p>Total Pemasukan</p>
-        <h3 style="color:#16834b;">${formatRupiah(pemasukan)}</h3>
-      </div>
-
-      <div style="background:#fdecec;padding:16px;border-radius:10px;">
-        <p>Total Pengeluaran</p>
-        <h3 style="color:#dc3545;">${formatRupiah(pengeluaran)}</h3>
-      </div>
-
-      <div style="background:#edf2fa;padding:16px;border-radius:10px;">
-        <p>Selisih Bulan Ini</p>
-        <h3>${formatRupiah(saldo)}</h3>
-      </div>
-
-    </div>
-
-    <p style="margin-top:15px;">
-      Jumlah transaksi: <strong>${dataBulan.length}</strong>
-    </p>
-  `;
-}
-
-document.getElementById('btnMuatLaporan')
-  .addEventListener('click', muatLaporanBulanan);
-function amanPesanRiwayat(pesan) {
-  return String(pesan ?? '').replace(/[&<>"']/g, karakter => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  })[karakter]);
-}
-
-document.getElementById('btnMuatRiwayat')
-  ?.addEventListener('click', muatRiwayatDKM);
-  document.getElementById('filterJenisRiwayat')
-  ?.addEventListener('change', muatRiwayatDKM);
-
-document.getElementById('filterPublikasiRiwayat')
-  ?.addEventListener('change', muatRiwayatDKM);
-  function bukaFormEditTransaksi(id) {
-  const transaksi = dataRiwayatDKM.find(
-    t => String(t.id) === String(id)
-  );
-
-  if (!transaksi) {
-    alert('Data transaksi tidak ditemukan.');
+  if (!token) {
+    hasil.innerHTML = '<p style="color:red;">Silakan login DKM terlebih dahulu.</p>';
     return;
   }
 
-  document.getElementById('editIdTransaksi').value = transaksi.id;
+  hasil.innerHTML = '<p>Memuat data laporan...</p>';
 
-  const tanggal = String(transaksi.tanggal || '');
-  document.getElementById('editTanggal').value =
-    /^\d{4}-\d{2}-\d{2}/.test(tanggal)
-      ? tanggal.substring(0, 10)
-      : '';
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getRiwayatDKM',
+        token: token
+      })
+    });
 
-  document.getElementById('editJenis').value =
-    String(transaksi.jenis || '').toLowerCase();
+    const hasilServer = await response.json();
 
-  document.getElementById('editKategori').value =
-    transaksi.kategori || '';
-
-  document.getElementById('editUraian').value =
-    transaksi.uraian || '';
-
-  document.getElementById('editJumlah').value =
-    transaksi.jumlah || '';
-
-  document.getElementById('editSumber').value =
-    transaksi.sumber || '';
-
-  document.getElementById('editPublikasi').value =
-    String(transaksi.statusPublikasi || '').toLowerCase();
-
-  document.getElementById('formEditTransaksi').style.display = 'block';
-
-  document.getElementById('formEditTransaksi')
-    .scrollIntoView({ behavior: 'smooth' });
-}
-
-document.getElementById('daftarRiwayatDKM')
-  .addEventListener('click', function(e) {
-    const tombol = e.target.closest('.btnEditTransaksi');
-
-    if (tombol) {
-      bukaFormEditTransaksi(tombol.dataset.id);
+    if (!hasilServer.success) {
+      throw new Error(hasilServer.message || 'Gagal mengambil data.');
     }
-  });
-  document.getElementById('daftarRiwayatDKM')
-  .addEventListener('click', async function(e) {
 
-    const tombol = e.target.closest('.btnHapusTransaksi');
+    const transaksi = hasilServer.transaksi || [];
 
-    if (!tombol) return;
-
-    const id = tombol.dataset.id;
-
-    const yakin = confirm(
-      'Apakah Anda yakin ingin menghapus transaksi ini?\n\n' +
-      'Data yang dihapus tidak dapat dikembalikan.'
+    const dataBulan = transaksi.filter(t =>
+      String(t.tanggal || '').substring(0, 7) === bulan
     );
 
-    if (!yakin) return;
+    const pemasukan = dataBulan
+      .filter(t => String(t.jenis).toLowerCase() === 'pemasukan')
+      .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
 
-    const token = localStorage.getItem('tokenDKM');
+    const pengeluaran = dataBulan
+      .filter(t => String(t.jenis).toLowerCase() === 'pengeluaran')
+      .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
 
-    if (!token) {
-      alert('Silakan login DKM kembali.');
-      return;
-    }
+    const saldo = pemasukan - pengeluaran;
 
-    tombol.disabled = true;
-    tombol.textContent = 'Menghapus...';
+    hasil.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
 
-    try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'hapusTransaksi',
-          token: token,
-          id: id
-        })
-      });
+        <div style="background:#e8f5ed;padding:16px;border-radius:10px;">
+          <p>Total Pemasukan</p>
+          <h3 style="color:#16834b;">${formatRupiah(pemasukan)}</h3>
+        </div>
 
-      const hasil = await response.json();
+        <div style="background:#fdecec;padding:16px;border-radius:10px;">
+          <p>Total Pengeluaran</p>
+          <h3 style="color:#dc3545;">${formatRupiah(pengeluaran)}</h3>
+        </div>
 
-      if (!hasil.success) {
-        throw new Error(hasil.message || 'Gagal menghapus transaksi.');
-      }
+        <div style="background:#edf2fa;padding:16px;border-radius:10px;">
+          <p>Selisih Bulan Ini</p>
+          <h3>${formatRupiah(saldo)}</h3>
+        </div>
 
-      alert('Transaksi berhasil dihapus.');
+      </div>
 
-      await muatRiwayatDKM();
-      await muatDashboard();
+      <p style="margin-top:15px;">
+        Jumlah transaksi: <strong>${dataBulan.length}</strong>
+      </p>
 
-    } catch (error) {
-      alert(error.message);
-      tombol.disabled = false;
-      tombol.textContent = 'Hapus';
-    }
-  });
-  document.getElementById('btnSimpanEdit')
-  .addEventListener('click', async function() {
+      ${dataBulan.length === 0
+        ? '<p>Belum ada transaksi pada bulan ini.</p>'
+        : ''}
+    `;
 
-    const token = localStorage.getItem('tokenDKM');
-    const status = document.getElementById('statusEditTransaksi');
-
-    const id = document.getElementById('editIdTransaksi').value;
-
-    const data = {
-      tanggal: document.getElementById('editTanggal').value,
-      jenis: document.getElementById('editJenis').value,
-      kategori: document.getElementById('editKategori').value,
-      uraian: document.getElementById('editUraian').value,
-      jumlah: document.getElementById('editJumlah').value,
-      sumber: document.getElementById('editSumber').value,
-      publikasi: document.getElementById('editPublikasi').value
-    };
-
-    if (!token) {
-      status.textContent = 'Silakan login DKM kembali.';
-      return;
-    }
-
-    if (!id || !data.tanggal || !data.kategori ||
-        !data.uraian || !data.jumlah || !data.sumber) {
-      status.textContent = 'Mohon lengkapi semua kolom.';
-      return;
-    }
-
-    this.disabled = true;
-    status.textContent = 'Menyimpan perubahan...';
-
-    try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'editTransaksi',
-          token: token,
-          id: id,
-          data: data
-        })
-      });
-
-      const hasil = await response.json();
-
-      if (!hasil.success) {
-        throw new Error(hasil.message || 'Gagal memperbarui transaksi.');
-      }
-
-      alert('Transaksi berhasil diperbarui.');
-
-      document.getElementById('formEditTransaksi').style.display = 'none';
-
-      await muatRiwayatDKM();
-      await muatDashboard();
-
-    } catch (error) {
-      status.textContent = error.message;
-    } finally {
-      this.disabled = false;
-    }
-  });
-
-document.getElementById('btnBatalEdit')
+  } catch (error) {
+    hasil.innerHTML = '<p style="color:red;">Gagal memuat laporan: ' +
+      error.message + '</p>';
+  }
+}
+  document.getElementById('btnBatalEdit')
   .addEventListener('click', function() {
     document.getElementById('formEditTransaksi').style.display = 'none';
   });
