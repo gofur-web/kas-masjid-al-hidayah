@@ -190,7 +190,73 @@
   <div id="daftarRiwayatDKM" style="margin-top:20px;">
     <p>Riwayat transaksi belum dimuat.</p>
   </div>
+<!-- INFORMASI DAN CATATAN DKM -->
+<div id="panelInformasiDKM" class="section"
+     style="max-width:1000px;margin:20px auto;display:none;">
 
+  <h2>📝 Informasi dan Catatan DKM</h2>
+
+  <p style="color:#718078;">
+    Pengelolaan pengumuman dan catatan internal pengurus DKM.
+  </p>
+
+  <h3>Tambah Informasi / Catatan</h3>
+
+  <form id="formInformasiDKM">
+
+    <label>Tanggal</label>
+    <input type="date" id="tanggalInformasiDKM"
+      required style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Judul</label>
+    <input type="text" id="judulInformasiDKM"
+      placeholder="Masukkan judul"
+      required style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <label>Isi Informasi / Catatan</label>
+    <textarea id="isiInformasiDKM"
+      rows="5" placeholder="Tuliskan informasi atau catatan..."
+      required style="width:100%;padding:12px;margin:8px 0 15px;"></textarea>
+
+    <label>Jenis</label>
+    <select id="jenisInformasiDKM"
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+      <option value="informasi">Informasi</option>
+      <option value="catatan">Catatan DKM</option>
+    </select>
+
+    <label>Status</label>
+    <select id="statusInformasiDKM"
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+      <option value="internal">Internal DKM</option>
+      <option value="publik">Publik</option>
+    </select>
+
+    <label>Penulis</label>
+    <input type="text" id="penulisInformasiDKM"
+      placeholder="Nama pengurus"
+      style="width:100%;padding:12px;margin:8px 0 15px;">
+
+    <button type="submit"
+      style="width:100%;padding:13px;background:#126b45;
+      color:white;border:0;border-radius:8px;cursor:pointer;">
+      Simpan Informasi
+    </button>
+
+    <p id="statusFormInformasiDKM"></p>
+
+  </form>
+
+  <hr style="margin:25px 0;">
+
+  <h3>Daftar Informasi dan Catatan</h3>
+
+  <div id="daftarInformasiDKM">
+    <p>Informasi belum dimuat.</p>
+  </div>
+
+</div>
+<!-- AKHIR INFORMASI DAN CATATAN DKM -->
 </div>
 <!-- LAPORAN KEUANGAN BULANAN -->
 <div class="section" style="margin-top:25px;">
