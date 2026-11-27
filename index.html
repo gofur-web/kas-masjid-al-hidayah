@@ -666,6 +666,23 @@ if (pilihanTahun) {
     pilihanTahun.appendChild(opsi);
   }
 }
+  // PILIHAN TAHUN GRAFIK
+const pilihanTahunGrafik = document.getElementById('tahunGrafik');
+
+if (pilihanTahunGrafik) {
+  const tahunSekarang = new Date().getFullYear();
+
+  for (
+    let tahun = tahunSekarang;
+    tahun >= tahunSekarang - 10;
+    tahun--
+  ) {
+    const opsi = document.createElement('option');
+    opsi.value = tahun;
+    opsi.textContent = tahun;
+    pilihanTahunGrafik.appendChild(opsi);
+  }
+}
 if (inputBulanLaporan) {
   const sekarang = new Date();
   const tahun = sekarang.getFullYear();
