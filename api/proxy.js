@@ -15,14 +15,14 @@ export default async function handler(req, res) {
   }
 
       const url = new URL(scriptUrl);
-      url.searchParams.set('action', action);
+url.searchParams.set('action', action);
 
-      const response = await fetch(url.toString());
-      const data = await response.json();
+// Teruskan pilihan tahun untuk grafik
+if (action === 'grafik' && req.query.tahun) {
+  url.searchParams.set('tahun', req.query.tahun);
+}
 
-      return res.status(200).json(data);
-    }
-
+const response = await fetch(url.toString());
     if (req.method === 'POST') {
       const body = req.body || {};
 
