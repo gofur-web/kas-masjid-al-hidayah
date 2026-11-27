@@ -896,7 +896,25 @@ const transaksiFilter = transaksi.filter(t => {
           ${escapeHTML(item.isi)}
         </p>
 
-        <small>Penulis: ${escapeHTML(item.penulis)}</small>
+       <small>Penulis: ${escapeHTML(item.penulis)}</small>
+
+<div style="display:flex;gap:8px;margin-top:12px;">
+
+  <button type="button"
+    onclick="editInformasiDKM('${item.id}')"
+    style="padding:8px 14px;background:#126b45;
+    color:white;border:0;border-radius:6px;cursor:pointer;">
+    Edit
+  </button>
+
+  <button type="button"
+    onclick="hapusInformasiDKM('${item.id}')"
+    style="padding:8px 14px;background:#c0392b;
+    color:white;border:0;border-radius:6px;cursor:pointer;">
+    Hapus
+  </button>
+
+</div>
 
       </div>
     `).join('');
