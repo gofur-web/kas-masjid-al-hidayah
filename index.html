@@ -1001,11 +1001,13 @@ const transaksiFilter = transaksi.filter(t => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          action: 'tambahInformasiDKM',
-          token: token,
-          data: data
-        })
-      });
+  action: document.getElementById('editIdInformasiDKM').value
+    ? 'editInformasiDKM'
+    : 'tambahInformasiDKM',
+  id: document.getElementById('editIdInformasiDKM').value,
+  token: token,
+  data: data
+})
 
       const hasil = await response.json();
 
