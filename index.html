@@ -695,6 +695,233 @@ async function muatLaporanBulanan() {
       error.message + '</p>';
   }
 }
+  
+async function muatLaporanBulanan() {
+  const bulan = document.getElementById('bulanLaporan').value;
+  const hasil = document.getElementById('hasilLaporanBulanan');
+
+  if (!bulan) {
+    hasil.innerHTML = '<p style="color:red;">Silakan pilih bulan terlebih dahulu.</p>';
+    return;
+  }
+
+  const token = localStorage.getItem('tokenDKM');
+
+  if (!token) {
+    hasil.innerHTML = '<p style="color:red;">Silakan login DKM terlebih dahulu.</p>';
+    return;
+  }
+
+  hasil.innerHTML = '<p>Memuat laporan...</p>';
+
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getRiwayatDKM',
+        token: token
+      })
+    });
+
+    const hasilServer = await response.json();
+
+    if (!hasilServer.success) {
+      throw new Error(hasilServer.message || 'Gagal mengambil data.');
+    }
+
+    const transaksi = hasilServer.transaksi || [];
+
+    const dataBulan = transaksi.filter(t =>
+      String(t.tanggal || '').substring(0, 7) === bulan
+    );
+
+    const pemasukan = dataBulan
+      .filter(t => String(t.jenis).toLowerCase() === 'pemasukan')
+      .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+    const pengeluaran = dataBulan
+      .filter(t => String(t.jenis).toLowerCase() === 'pengeluaran')
+      .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+    const saldo = pemasukan - pengeluaran;
+
+    const namaBulan = new Date(bulan + '-01')
+      .toLocaleDateString('id-ID', {
+        month: 'long',
+        year: 'numeric'
+      });
+
+    const amanLaporan = nilai =>
+      String(nilai ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[c]);
+
+    hasil.innerHTML = `
+      <div id="isiCetakLaporan">
+
+        <div style="text-align:center;margin-bottom:20px;">
+          <h2>🕌 MASJID AL-HIDAYAH</h2>
+          <p>Perumahan Taman Pesona Rajeg Mulya</p>
+          <p>RT 04/RW 004 · Desa Rajeg Mulya</p>
+          <h3>LAPORAN KEUANGAN BULANAN</h3>
+          <strong>${namaBulan}</strong>
+        </div>
+
+        <hr>
+
+        <h3>Ringkasan Keuangan</h3>
+
+        <p>Total Pemasukan:
+          <strong>${formatRupiah(pemasukan)}</strong>
+        </p>
+
+        <p>Total Pengeluaran:
+          <strong>${formatRupiah(pengeluaran)}</strong>
+        </p>
+
+        <p>Selisih Bulan Ini:
+          <strong>${formatRupiah(saldo)}</strong>
+        </p>
+
+        <p>Jumlah Transaksi:
+          <strong>${dataBulan.length}</strong>
+        </p>
+
+        <h3>Rincian Transaksi</h3>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#e8f3ed;">
+                <th style="padding:8px;border:1px solid #ccc;">No.</th>
+                <th style="padding:8px;border:1px solid #ccc;">Tanggal</th>
+                <th style="padding:8px;border:1px solid #ccc;">Jenis</th>
+                <th style="padding:8px;border:1px solid #ccc;">Uraian</th>
+                <th style="padding:8px;border:1px solid #ccc;">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dataBulan.map((t, i) => `
+                <tr>
+                  <td style="padding:8px;border:1px solid #ccc;">${i + 1}</td>
+                  <td style="padding:8px;border:1px solid #ccc;">${amanLaporan(t.tanggal)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;">${amanLaporan(t.jenis)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;">${amanLaporan(t.uraian)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;text-align:right;">${formatRupiah(Number(t.jumlah) || 0)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-around;
+          gap:30px;margin-top:50px;text-align:center;">
+          <div>
+            <p>Ketua DKM</p>
+            <br><br><br>
+            <strong>(................................)</strong>
+          </div>
+          <div>
+            <p>Bendahara</p>
+            <br><br><br>
+            <strong>(................................)</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <button type="button" onclick="cetakLaporanBulanan()"
+        style="width:100%;padding:14px;margin-top:20px;
+        background:#126b45;color:white;border:0;
+        border-radius:8px;cursor:pointer;">
+        🖨️ Cetak / Download PDF
+      </button>
+    `;
+
+  } catch (error) {
+    hasil.innerHTML = '<p style="color:red;">Gagal memuat laporan: ' +
+      error.message + '</p>';
+  }
+}
+function cetakLaporanBulanan() {
+  const isi = document.getElementById('isiCetakLaporan');
+
+  if (!isi) {
+    alert('Tampilkan laporan terlebih dahulu.');
+    return;
+  }
+
+  const jendela = window.open('', '_blank');
+
+  if (!jendela) {
+    alert('Izinkan pop-up pada browser untuk mencetak laporan.');
+    return;
+  }
+
+  jendela.onload = function() {
+    jendela.focus();
+    jendela.print();
+  };
+
+  jendela.document.open();
+  jendela.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Laporan Keuangan Masjid Al-Hidayah</title>
+      <style>
+        @page {
+          size: A4;
+          margin: 18mm;
+        }
+
+        body {
+          font-family: Arial, sans-serif;
+          color: #222;
+          font-size: 12px;
+        }
+
+        h2, h3, p {
+          margin: 6px 0;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 11px;
+          margin-top: 12px;
+        }
+
+        th, td {
+          border: 1px solid #777;
+          padding: 7px;
+          text-align: left;
+        }
+
+        th:last-child,
+        td:last-child {
+          text-align: right;
+        }
+
+        button {
+          display: none !important;
+        }
+      </style>
+    </head>
+    <body>
+      ${isi.innerHTML}
+    </body>
+    </html>
+  `);
+
+  jendela.document.close();
+}
   document.getElementById('btnBatalEdit')
   .addEventListener('click', function() {
     document.getElementById('formEditTransaksi').style.display = 'none';
