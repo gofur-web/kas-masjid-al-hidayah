@@ -4,40 +4,53 @@ export default async function handler(req, res) {
     'https://script.google.com/macros/s/AKfycbyJ89Y5A-sWXMhz0tCYB3oCFrxMrDiGYMagthBgvseYc_Ro1ShsNBsVc064nZpsd9xq/exec';
 
   try {
-   if (req.method === 'GET') {
-  const action = req.query.action || 'dashboard';
 
-  if (!['dashboard', 'grafik'].includes(action)) {
-    return res.status(400).json({
-      success: false,
-      error: 'Action tidak tersedia'
-    });
-  }
+    // =========================
+    // REQUEST GET
+    // =========================
+    if (req.method === 'GET') {
+      const action = req.query.action || 'dashboard';
+
+      if (!['dashboard', 'grafik'].includes(action)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Action tidak tersedia'
+        });
+      }
 
       const url = new URL(scriptUrl);
-url.searchParams.set('action', action);
 
-// Teruskan pilihan tahun untuk grafik
-if (action === 'grafik' && req.query.tahun) {
-  url.searchParams.set('tahun', req.query.tahun);
-}
+      url.searchParams.set('action', action);
 
-const response = await fetch(url.toString());
+      // Teruskan tahun untuk grafik
+      if (action === 'grafik' && req.query.tahun) {
+        url.searchParams.set('tahun', req.query.tahun);
+      }
+
+      const response = await fetch(url.toString());
+      const data = await response.json();
+
+      return res.status(200).json(data);
+    }
+
+    // =========================
+    // REQUEST POST
+    // =========================
     if (req.method === 'POST') {
       const body = req.body || {};
 
       if (![
-  'loginDKM',
-  'simpanTransaksi',
-  'getRiwayatDKM',
-  'editTransaksi',
-  'hapusTransaksi'
-].includes(body.action)) {
-  return res.status(400).json({
-    success: false,
-    error: 'Action tidak tersedia'
-  });
-}
+        'loginDKM',
+        'simpanTransaksi',
+        'getRiwayatDKM',
+        'editTransaksi',
+        'hapusTransaksi'
+      ].includes(body.action)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Action tidak tersedia'
+        });
+      }
 
       const response = await fetch(scriptUrl, {
         method: 'POST',
