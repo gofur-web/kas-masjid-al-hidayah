@@ -661,8 +661,14 @@ document.getElementById('formLoginDKM')
 
       status.textContent = 'Login DKM berhasil!';
       document.getElementById('formTransaksiDKM').style.display = 'block';
-      document.getElementById('riwayatDKM').style.display = 'block';
-      muatRiwayatDKM();
+document.getElementById('riwayatDKM').style.display = 'block';
+document.getElementById('panelInformasiDKM').style.display = 'block';
+
+muatRiwayatDKM();
+muatInformasiDKM();
+
+document.getElementById('tanggalInformasiDKM').value =
+  new Date().toLocaleDateString('en-CA');
 document.getElementById('tanggalTransaksi').value =
   new Date().toLocaleDateString('en-CA');
       document.getElementById('pinDKM').value = '';
