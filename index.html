@@ -676,7 +676,45 @@ function editInformasiDKM(id) {
   .catch(error => {
     alert('Gagal mengambil informasi: ' + error.message);
   });
-}  
+}
+    async function hapusInformasiDKM(id) {
+  if (!confirm('Apakah Anda yakin ingin menghapus informasi ini?')) {
+    return;
+  }
+
+  const token = localStorage.getItem('tokenDKM');
+
+  if (!token) {
+    alert('Silakan login DKM terlebih dahulu.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'hapusInformasiDKM',
+        id: id,
+        token: token
+      })
+    });
+
+    const hasil = await response.json();
+
+    if (!hasil.success) {
+      throw new Error(hasil.message || 'Gagal menghapus informasi.');
+    }
+
+    alert('Informasi berhasil dihapus.');
+    await muatInformasiDKM();
+
+  } catch (error) {
+    alert('Gagal menghapus informasi: ' + error.message);
+  }
+}
 document.getElementById('formLoginDKM')
   .addEventListener('submit', async function(e) {
     e.preventDefault();
