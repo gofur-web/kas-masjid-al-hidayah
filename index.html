@@ -963,6 +963,164 @@ function cetakLaporanBulanan() {
 
   jendela.document.close();
 }
+  
+async function muatLaporanTahunan() {
+  const tahun = document.getElementById('tahunLaporan').value;
+  const hasil = document.getElementById('hasilLaporanTahunan');
+  const token = localStorage.getItem('tokenDKM');
+
+  if (!tahun) {
+    hasil.innerHTML = '<p style="color:red;">Silakan pilih tahun.</p>';
+    return;
+  }
+
+  if (!token) {
+    hasil.innerHTML = '<p style="color:red;">Silakan login DKM terlebih dahulu.</p>';
+    return;
+  }
+
+  hasil.innerHTML = '<p>Memuat laporan tahunan...</p>';
+
+  try {
+    const response = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getRiwayatDKM',
+        token: token
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || 'Gagal mengambil data.');
+    }
+
+    const transaksi = (data.transaksi || []).filter(t =>
+      String(t.tanggal || '').substring(0, 4) === String(tahun)
+    );
+
+    let totalPemasukan = 0;
+    let totalPengeluaran = 0;
+
+    const rekapBulanan = [];
+
+    for (let bulan = 1; bulan <= 12; bulan++) {
+      const nomorBulan = String(bulan).padStart(2, '0');
+
+      const dataBulan = transaksi.filter(t =>
+        String(t.tanggal || '').substring(5, 7) === nomorBulan
+      );
+
+      const pemasukan = dataBulan
+        .filter(t => String(t.jenis).toLowerCase() === 'pemasukan')
+        .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+      const pengeluaran = dataBulan
+        .filter(t => String(t.jenis).toLowerCase() === 'pengeluaran')
+        .reduce((total, t) => total + (Number(t.jumlah) || 0), 0);
+
+      totalPemasukan += pemasukan;
+      totalPengeluaran += pengeluaran;
+
+      const namaBulan = new Date(Number(tahun), bulan - 1, 1)
+        .toLocaleDateString('id-ID', { month: 'long' });
+
+      rekapBulanan.push({
+        nama: namaBulan,
+        pemasukan,
+        pengeluaran,
+        saldo: pemasukan - pengeluaran,
+        jumlah: dataBulan.length
+      });
+    }
+
+    const saldoTahunan = totalPemasukan - totalPengeluaran;
+
+    hasil.innerHTML = `
+      <div id="isiCetakLaporanTahunan">
+
+        <div style="text-align:center;margin-bottom:20px;">
+          <h2>MASJID AL-HIDAYAH</h2>
+          <p>Perumahan Taman Pesona Rajeg Mulya</p>
+          <p>RT 04/RW 004, Desa Rajeg Mulya</p>
+          <h3>LAPORAN KEUANGAN TAHUN ${tahun}</h3>
+        </div>
+
+        <div style="display:grid;
+          grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+          gap:12px;">
+
+          <div style="background:#e8f5ed;padding:15px;border-radius:10px;">
+            <p>Total Pemasukan</p>
+            <h3 style="color:#16834b;">
+              ${formatRupiah(totalPemasukan)}
+            </h3>
+          </div>
+
+          <div style="background:#fdecec;padding:15px;border-radius:10px;">
+            <p>Total Pengeluaran</p>
+            <h3 style="color:#dc3545;">
+              ${formatRupiah(totalPengeluaran)}
+            </h3>
+          </div>
+
+          <div style="background:#edf2fa;padding:15px;border-radius:10px;">
+            <p>Selisih Tahunan</p>
+            <h3>${formatRupiah(saldoTahunan)}</h3>
+          </div>
+
+        </div>
+
+        <p style="margin-top:18px;">
+          Jumlah transaksi: <strong>${transaksi.length}</strong>
+        </p>
+
+        <h3 style="margin-top:20px;">Rekap Per Bulan</h3>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#126b45;color:white;">
+                <th style="padding:9px;border:1px solid #ccc;">Bulan</th>
+                <th style="padding:9px;border:1px solid #ccc;">Pemasukan</th>
+                <th style="padding:9px;border:1px solid #ccc;">Pengeluaran</th>
+                <th style="padding:9px;border:1px solid #ccc;">Selisih</th>
+                <th style="padding:9px;border:1px solid #ccc;">Transaksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rekapBulanan.map(b => `
+                <tr>
+                  <td style="padding:8px;border:1px solid #ccc;">${b.nama}</td>
+                  <td style="padding:8px;border:1px solid #ccc;text-align:right;">${formatRupiah(b.pemasukan)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;text-align:right;">${formatRupiah(b.pengeluaran)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;text-align:right;">${formatRupiah(b.saldo)}</td>
+                  <td style="padding:8px;border:1px solid #ccc;text-align:center;">${b.jumlah}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <button type="button" onclick="cetakLaporanTahunan()"
+        style="width:100%;padding:14px;margin-top:20px;
+        background:#126b45;color:white;border:0;
+        border-radius:8px;cursor:pointer;">
+        🖨️ Cetak / Download PDF
+      </button>
+    `;
+
+  } catch (error) {
+    hasil.innerHTML =
+      '<p style="color:red;">Gagal memuat laporan: ' +
+      error.message + '</p>';
+  }
+}
+
   document.getElementById('btnBatalEdit')
   .addEventListener('click', function() {
     document.getElementById('formEditTransaksi').style.display = 'none';
